@@ -297,13 +297,18 @@ func (api *API) GetBlockByNumOrID(query string) (out *SignedBlock, err error) {
 	return
 }
 
+func (api *API) GetActions(params GetActionsRequest) (out *GetActionsResp, err error) {
+	err = api.call("history", "get_actions", params, &out)
+	return
+}
+
 func (api *API) GetTransaction(id string) (out *TransactionResp, err error) {
-	err = api.call("account_history", "get_transaction", M{"transaction_id": id}, &out)
+	err = api.call("history", "get_transaction", M{"transaction_id": id}, &out)
 	return
 }
 
 func (api *API) GetTransactions(name AccountName) (out *TransactionsResp, err error) {
-	err = api.call("account_history", "get_transactions", M{"account_name": name}, &out)
+	err = api.call("history", "get_transactions", M{"account_name": name}, &out)
 	return
 }
 
@@ -368,7 +373,11 @@ func (api *API) call(baseAPI string, endpoint string, body interface{}, out inte
 		return ErrNotFound
 	}
 	if resp.StatusCode > 299 {
-		return fmt.Errorf("%s: status code=%d, body=%s", req.URL.String(), resp.StatusCode, cnt.String())
+		apiErr := APIError{}
+		if e := json.Unmarshal(cnt.Bytes(), &apiErr); e != nil {
+			return fmt.Errorf("%s: status code=%d, body=%s", req.URL.String(), resp.StatusCode, cnt.String())
+		}
+		return apiErr
 	}
 
 	if api.Debug {

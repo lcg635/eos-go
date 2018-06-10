@@ -55,6 +55,44 @@ type BlockResp struct {
 // 	Trx           []json.RawMessage `json:"trx"`
 // }
 
+type GetActionsRequest struct {
+	AccountName AccountName `json:"account_name"`
+	Pos         int64       `json:"pos"`
+	Offset      int64       `json:"offset"`
+}
+
+type GetActionsResp struct {
+	Actions []struct {
+		GlobalActionSeq  int         `json:"global_action_seq"`
+		AccountActionSeq int         `json:"account_action_seq"`
+		BlockNum         int         `json:"block_num"`
+		BlockTime        string      `json:"block_time"`
+		ActionTrace      ActionTrace `json:"action_trace"`
+	} `json:"actions"`
+	LastIrreversibleBlock int `json:"last_irreversible_block"`
+}
+
+type ActionTrace struct {
+	Receipt       Receipt       `json:"receipt"`
+	Act           Action        `json:"act"`
+	Elapsed       int           `json:"elapsed"`
+	CPUUsage      int           `json:"cpu_usage"`
+	Console       string        `json:"console"`
+	TotalCPUUsage int           `json:"total_cpu_usage"`
+	TrxID         string        `json:"trx_id"`
+	InlineTraces  []ActionTrace `json:"inline_traces"`
+}
+
+type Receipt struct {
+	Receiver       string          `json:"receiver"`
+	ActDigest      string          `json:"act_digest"`
+	GlobalSequence int             `json:"global_sequence"`
+	RecvSequence   int             `json:"recv_sequence"`
+	AuthSequence   [][]interface{} `json:"auth_sequence"`
+	CodeSequence   int             `json:"code_sequence"`
+	AbiSequence    int             `json:"abi_sequence"`
+}
+
 type TransactionResp struct {
 	TransactionID string `json:"transaction_id"`
 	Transaction   struct {
